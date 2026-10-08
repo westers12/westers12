@@ -1,0 +1,89 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import BlockDiagram from '../../components/BlockDiagram.astro';
+import { person } from '../../data/profile';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map((note) => ({ params: { id: note.id }, props: { note } }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+const d = note.data;
+const an = `AN-${String(d.number).padStart(2, '0')}`;
+const isTbd = (s: string) => s.trim().toUpperCase() === 'TBD';
+---
+
+<Base title={`${an}: ${d.title}, ${person.name}`} description={d.summary}>
+  <article class="wrap note">
+    <header>
+      <p class="an">Application note {an}</p>
+      <h1>{d.title}</h1>
+      <p class="summary">{d.summary}</p>
+      <table class="spec meta">
+        <tbody>
+          <tr><th scope="row">Period</th><td>{isTbd(d.period) ? <mark class="tbd">TBD</mark> : d.period}</td></tr>
+          {d.role && <tr><th scope="row">Role</th><td>{d.role}</td></tr>}
+          <tr>
+            <th scope="row">Stack</th>
+            <td>{d.stack.some(isTbd) ? <mark class="tbd">TBD</mark> : d.stack.join(', ')}</td>
+          </tr>
+          {d.repo && <tr><th scope="row">Source</th><td><a href={d.repo}>{d.repo.replace(/^https?:\/\//, '')}</a></td></tr>}
+        </tbody>
+      </table>
+    </header>
+
+    <figure class="fig">
+      <BlockDiagram blocks={d.diagram} label={`System overview of ${d.title}`} />
+      <figcaption><b>Figure 1.</b> System overview.</figcaption>
+    </figure>
+
+    <div class="body">
+      <Content />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .note {
+    padding-top: 2.5rem;
+  }
+  .an {
+    color: var(--mask);
+    font-weight: 700;
+    font-stretch: var(--narrow);
+    font-size: var(--step-1);
+    margin-bottom: 0.25rem;
+  }
+  h1 {
+    font-size: var(--step-3);
+    font-weight: 800;
+  }
+  .summary {
+    font-size: var(--step-1);
+    margin-top: 0.75rem;
+  }
+  .meta {
+    max-width: 40rem;
+    margin-top: 1.5rem;
+  }
+  .meta th {
+    background: var(--shade);
+    width: 7rem;
+    font-stretch: var(--narrow);
+  }
+  .fig {
+    margin: 2.5rem 0;
+    padding: 1.5rem;
+    border: 1px solid var(--rule);
+  }
+  .body :global(h2) {
+    font-size: var(--step-2);
+    font-weight: 750;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 0.4rem;
+    margin: 2.5rem 0 1rem;
+  }
+</style>

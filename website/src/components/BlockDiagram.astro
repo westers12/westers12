@@ -1,0 +1,194 @@
+---
+// Functional block diagram: a left-to-right signal chain.
+// On narrow screens it turns into a top-to-bottom chain.
+interface Block {
+  label: string;
+  detail?: string;
+}
+interface Group {
+  label: string;
+  span: number; // how many consecutive blocks this group covers
+}
+interface Props {
+  blocks: Block[];
+  groups?: Group[];
+  animate?: boolean;
+  label: string; // accessible description of the whole diagram
+}
+
+const { blocks, groups, animate = false, label } = Astro.props;
+const isTbd = (s: string) => s.trim().toUpperCase() === 'TBD';
+
+let col = 1;
+const placedGroups = (groups ?? []).map((g) => {
+  const placed = { ...g, start: col };
+  col += g.span;
+  return placed;
+});
+---
+
+<div class:list={['diagram', { animate }]} style={`--n: ${blocks.length}`}>
+  <ol aria-label={label}>
+    {
+      blocks.map((b, i) => (
+        <li style={`--i: ${i}`}>
+          <span class:list={['label', { tbd: isTbd(b.label) }]}>{b.label}</span>
+          {b.detail && <span class="detail">{b.detail}</span>}
+        </li>
+      ))
+    }
+  </ol>
+  {
+    placedGroups.length > 0 && (
+      <div class="groups" aria-hidden="true">
+        {placedGroups.map((g) => (
+          <span style={`grid-column: ${g.start} / span ${g.span}`}>{g.label}</span>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .diagram {
+    --gap: 2.75rem;
+    --line: 2px;
+  }
+
+  ol,
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    column-gap: var(--gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+    border: var(--line) solid var(--ink);
+    background: var(--paper);
+    padding: 0.85rem 0.9rem;
+    min-height: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+  }
+
+  /* Pins: small stubs on the left and right edge of each block */
+  li::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--line) - 6px);
+    top: 50%;
+    width: 6px;
+    height: 10px;
+    margin-top: -5px;
+    background: var(--ink);
+  }
+  li:first-child::before {
+    display: none;
+  }
+
+  /* Signal line plus arrowhead into the next block */
+  li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: var(--gap);
+    height: var(--line);
+    margin-left: var(--line);
+    background: var(--mask);
+    transform-origin: left center;
+  }
+
+  .label {
+    font-weight: 750;
+    font-stretch: var(--narrow);
+    font-size: var(--step-1);
+    line-height: 1.15;
+  }
+  .label.tbd {
+    align-self: flex-start;
+  }
+  .detail {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  /* Group brackets under the blocks */
+  .groups {
+    margin-top: 0.6rem;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--mask);
+  }
+  .groups span {
+    border: 2px solid var(--mask);
+    border-top: 0;
+    height: 1.9rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 0.15rem;
+    transform: translateY(0);
+  }
+
+  /* One load moment: the signal travels down the chain */
+  .animate li {
+    animation: power 0.45s ease-out both;
+    animation-delay: calc(var(--i) * 0.32s + 0.15s);
+  }
+  .animate li:not(:last-child)::after {
+    animation: trace 0.3s ease-in both;
+    animation-delay: calc(var(--i) * 0.32s + 0.4s);
+  }
+  @keyframes power {
+    from {
+      border-color: var(--rule);
+      color: var(--rule);
+    }
+  }
+  @keyframes trace {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @media (max-width: 760px) {
+    ol {
+      grid-template-columns: 1fr;
+      row-gap: var(--gap);
+      column-gap: 0;
+    }
+    li {
+      min-height: 0;
+    }
+    li::before {
+      left: 50%;
+      top: calc(-1 * var(--line) - 6px);
+      width: 10px;
+      height: 6px;
+      margin: 0 0 0 -5px;
+    }
+    li:not(:last-child)::after {
+      top: 100%;
+      left: 50%;
+      width: var(--line);
+      height: var(--gap);
+      margin: var(--line) 0 0 -1px;
+      transform-origin: center top;
+    }
+    @keyframes trace {
+      from {
+        transform: scaleY(0);
+      }
+    }
+    .groups {
+      display: none;
+    }
+  }
+</style>

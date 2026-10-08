@@ -1,0 +1,178 @@
+---
+import '@fontsource-variable/archivo/standard.css';
+import '../styles/global.css';
+import { person, site } from '../data/profile';
+
+interface Props {
+  title: string;
+  description?: string;
+  home?: boolean;
+}
+
+const { title, description = person.summary, home = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+const sections = [
+  { href: '#features', label: 'Features' },
+  { href: '#specifications', label: 'Specifications' },
+  { href: '#notes', label: 'Projects' },
+  { href: '#history', label: 'Experience' },
+  { href: '#contact', label: 'Contact' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0f6a4b" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="band">
+      <div class="wrap band-inner">
+        <a class="part" href="/" aria-label={`${person.name}, home`}>{site.partNumber}</a>
+        <span class="doc">Datasheet, revision {site.revision}</span>
+      </div>
+    </header>
+
+    <nav class="topnav" aria-label="Sections">
+      <div class="wrap topnav-inner">
+        {
+          home ? (
+            <ul>
+              {sections.map((s) => (
+                <li>
+                  <a href={s.href}>{s.label}</a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul>
+              <li>
+                <a href="/">Back to the datasheet</a>
+              </li>
+            </ul>
+          )
+        }
+        <a class="cv-link" href="/cv.pdf" download>Download CV</a>
+      </div>
+    </nav>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-inner">
+        <span>{site.partNumber} datasheet, revision {site.revision}</span>
+        <a href={`mailto:${person.email}?subject=Feedback on ${site.domain}`}>Send feedback on this document</a>
+        <span>&copy; {new Date().getFullYear()} {person.name}</span>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: -999px;
+  }
+  .skip:focus {
+    left: 1rem;
+    top: 1rem;
+    z-index: 10;
+    background: var(--paper);
+    padding: 0.5rem 1rem;
+  }
+
+  .band {
+    background: var(--mask);
+    color: var(--paper);
+  }
+  .band-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-block: 0.6rem;
+  }
+  .part {
+    color: var(--paper);
+    text-decoration: none;
+    font-weight: 800;
+    font-stretch: var(--narrow);
+    font-size: var(--step-1);
+    letter-spacing: 0.02em;
+  }
+  .doc {
+    font-size: var(--step--1);
+    opacity: 0.9;
+  }
+
+  .topnav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .topnav-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .topnav ul {
+    display: flex;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0.7rem 0;
+    overflow-x: auto;
+    flex: 1;
+    scrollbar-width: none;
+  }
+  .topnav li {
+    white-space: nowrap;
+  }
+  .topnav a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    font-stretch: var(--narrow);
+  }
+  .topnav a:hover {
+    color: var(--mask);
+  }
+  .topnav .cv-link {
+    color: var(--mask);
+    white-space: nowrap;
+    border-left: 1px solid var(--rule);
+    padding-left: 1rem;
+  }
+
+  .foot {
+    margin-top: 4rem;
+    border-top: 3px solid var(--ink);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .foot-inner {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    padding-block: 1.25rem 2rem;
+  }
+</style>

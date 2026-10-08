@@ -1,0 +1,406 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import BlockDiagram from '../components/BlockDiagram.astro';
+import {
+  person,
+  site,
+  features,
+  lookingFor,
+  description,
+  skillGroups,
+  work,
+  education,
+} from '../data/profile';
+
+const notes = (await getCollection('notes')).sort((a, b) => a.data.number - b.data.number);
+const an = (n: number) => `AN-${String(n).padStart(2, '0')}`;
+
+const chain = [
+  { label: 'Sensors & actuators', detail: 'The physical world' },
+  { label: 'ESP32 firmware', detail: 'C / C++, ESP-IDF' },
+  { label: '.NET services', detail: 'C#, APIs, internal apps' },
+  { label: 'Docker, nginx, IIS', detail: 'Linux and Windows hosts' },
+  { label: 'People', detail: 'Operators, dashboards' },
+];
+const groups = [
+  { label: 'Embedded', span: 2 },
+  { label: 'Software', span: 1 },
+  { label: 'Infrastructure', span: 1 },
+  { label: 'Users', span: 1 },
+];
+---
+
+<Base title={`${person.name}, ${person.role}`} home>
+  <section class="wrap hero" aria-labelledby="name">
+    <div class="title-block">
+      <h1 id="name">{person.name}</h1>
+      <p class="role">{person.role}</p>
+    </div>
+
+    <div class="front">
+      <div id="features" class="features">
+        <h2 class="section-head"><span class="num">1</span>Features</h2>
+        <ul>
+          {features.map((f) => <li>{f}</li>)}
+        </ul>
+        <div class="actions">
+          <a class="btn" href="/cv.pdf" download>Download CV (PDF)</a>
+          <a class="btn ghost" href={`mailto:${person.email}`}>Email me</a>
+        </div>
+      </div>
+
+      <div class="applications">
+        <h2 class="section-head"><span class="num">2</span>Applications</h2>
+        <p class="lede">{person.summary}</p>
+        <p>Suited for:</p>
+        {
+          lookingFor.roles ? (
+            <ul>
+              {lookingFor.roles.map((r) => <li>{r}</li>)}
+            </ul>
+          ) : (
+            <p>
+              <mark class="tbd">TBD: the roles you are looking for (graduation internship, part-time, ...)</mark>
+            </p>
+          )
+        }
+        <p>
+          Available from:{' '}
+          {lookingFor.availableFrom ?? <mark class="tbd">TBD: date</mark>}
+        </p>
+      </div>
+    </div>
+
+    <figure class="fig1">
+      <BlockDiagram
+        blocks={chain}
+        groups={groups}
+        animate
+        label="Functional block diagram: sensors and actuators, ESP32 firmware, .NET services, Docker, nginx and IIS hosting, people"
+      />
+      <figcaption>
+        <b>Figure 1.</b> Functional block diagram. I work across the whole chain, from firmware on a microcontroller
+        to the service and the server it runs on.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="wrap section" aria-labelledby="description">
+    <h2 class="section-head" id="description"><span class="num">3</span>Description</h2>
+    <div class="desc">
+      <div>
+        {description.map((p) => <p>{p}</p>)}
+      </div>
+      <figure class="photo">
+        {
+          person.photo ? (
+            <img src={person.photo} alt={`Portrait of ${person.name}`} width="320" height="400" />
+          ) : (
+            <div class="photo-slot">
+              <mark class="tbd">TBD: add a portrait as public/img/sem.jpg and set person.photo</mark>
+            </div>
+          )
+        }
+        <figcaption><b>Figure 2.</b> {person.name}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="specifications">
+    <h2 class="section-head" id="specifications"><span class="num">4</span>Specifications</h2>
+    {
+      skillGroups.map((g, i) => (
+        <>
+          <h3 class="sub-head">
+            <span class="num">4.{i + 1}</span>
+            {g.title}
+          </h3>
+          <div class="table-scroll">
+            <table class="spec">
+              <thead>
+                <tr>
+                  <th scope="col">Skill</th>
+                  <th scope="col">Where I used it</th>
+                </tr>
+              </thead>
+              <tbody>
+                {g.skills.map((s) => (
+                  <tr>
+                    <td>{s.name}</td>
+                    <td>{s.where ?? <mark class="tbd">TBD</mark>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ))
+    }
+  </section>
+
+  <section class="wrap section" aria-labelledby="notes">
+    <h2 class="section-head" id="notes"><span class="num">5</span>Application notes</h2>
+    <p>Selected projects, each written up like an application note: the problem, my part in it, and the result.</p>
+    <ul class="notes">
+      {
+        notes.map((n) => (
+          <li>
+            <a href={`/notes/${n.id}/`}>
+              <span class="an">{an(n.data.number)}</span>
+              <span class="nt">{n.data.title}</span>
+              <span class="ns">{n.data.summary}</span>
+              <span class="nstack">{n.data.stack.join(', ')}</span>
+              {n.data.placeholder && <span class="tbd">Draft</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="wrap section" aria-labelledby="history">
+    <h2 class="section-head" id="history"><span class="num">6</span>Revision history</h2>
+    {
+      [
+        { title: 'Work', rows: work },
+        { title: 'Education', rows: education },
+      ].map((block, i) => (
+        <>
+          <h3 class="sub-head">
+            <span class="num">6.{i + 1}</span>
+            {block.title}
+          </h3>
+          <div class="table-scroll">
+            <table class="spec history">
+              <thead>
+                <tr>
+                  <th scope="col">Period</th>
+                  <th scope="col">Change</th>
+                </tr>
+              </thead>
+              <tbody>
+                {block.rows.map((r) => (
+                  <tr>
+                    <td>{r.period}</td>
+                    <td>
+                      <strong>{r.title}</strong>, {r.org}
+                      {r.details !== undefined || block.title === 'Work' ? (
+                        <p>{r.details ?? <mark class="tbd">TBD: what you did here</mark>}</p>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ))
+    }
+  </section>
+
+  <section class="wrap section" aria-labelledby="contact">
+    <h2 class="section-head" id="contact"><span class="num">7</span>Ordering information</h2>
+    <div class="table-scroll">
+      <table class="spec contact">
+        <tbody>
+          <tr>
+            <th scope="row">Email</th>
+            <td><a href={`mailto:${person.email}`}>{person.email}</a></td>
+          </tr>
+          <tr>
+            <th scope="row">LinkedIn</th>
+            <td>{person.linkedin ? <a href={person.linkedin}>{person.linkedin.replace(/^https?:\/\//, '')}</a> : <mark class="tbd">TBD</mark>}</td>
+          </tr>
+          <tr>
+            <th scope="row">GitHub</th>
+            <td>{person.github ? <a href={person.github}>{person.github.replace(/^https?:\/\//, '')}</a> : <mark class="tbd">TBD</mark>}</td>
+          </tr>
+          <tr>
+            <th scope="row">Location</th>
+            <td>{person.location}</td>
+          </tr>
+          <tr>
+            <th scope="row">Languages</th>
+            <td>{person.languages.join(', ')}</td>
+          </tr>
+          <tr>
+            <th scope="row">Other</th>
+            <td>{person.extras.join(', ')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: 2.5rem;
+  }
+
+  .title-block {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-weight: 800;
+    font-stretch: 70%;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+
+  .role {
+    font-size: var(--step-2);
+    font-stretch: var(--narrow);
+    font-weight: 500;
+    color: var(--mask);
+    margin: 0.5rem 0 0;
+  }
+
+  .front {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+
+  .front ul {
+    margin: 0 0 1.25rem;
+    padding-left: 1.1rem;
+  }
+  .front li {
+    margin-bottom: 0.4rem;
+  }
+  .front li::marker {
+    color: var(--mask);
+  }
+
+  .lede {
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .fig1 {
+    margin-top: 3rem;
+    padding: 1.75rem;
+    border: 1px solid var(--rule);
+    background:
+      radial-gradient(circle, var(--rule) 1px, transparent 1.2px) 0 0 / 16px 16px,
+      var(--paper);
+  }
+
+  .desc {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 16rem;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .photo-slot {
+    aspect-ratio: 4 / 5;
+    border: 2px dashed var(--rule);
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    text-align: center;
+  }
+  .photo img {
+    border: 1px solid var(--rule);
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  table.contact {
+    max-width: 40rem;
+  }
+  table.contact th {
+    background: var(--shade);
+    width: 9rem;
+    font-stretch: var(--narrow);
+  }
+
+  .history p {
+    margin: 0.35rem 0 0;
+    color: var(--ink-soft);
+  }
+
+  .notes {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .notes a {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      'an nt tag'
+      'an ns tag'
+      'an nstack tag';
+    column-gap: 1.5rem;
+    padding: 1.1rem 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .notes a:hover {
+    background: var(--shade);
+  }
+  .notes a:hover .nt {
+    color: var(--mask);
+  }
+  .an {
+    grid-area: an;
+    font-weight: 800;
+    font-stretch: var(--narrow);
+    font-size: var(--step-1);
+    color: var(--mask);
+  }
+  .nt {
+    grid-area: nt;
+    font-weight: 700;
+    font-stretch: var(--narrow);
+    font-size: var(--step-1);
+  }
+  .ns {
+    grid-area: ns;
+  }
+  .nstack {
+    grid-area: nstack;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .notes .tbd {
+    grid-area: tag;
+    align-self: start;
+  }
+
+  @media (max-width: 760px) {
+    .front,
+    .desc {
+      grid-template-columns: 1fr;
+    }
+    .photo {
+      max-width: 16rem;
+    }
+    .fig1 {
+      padding: 1rem;
+    }
+    .notes a {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'an tag'
+        'nt nt'
+        'ns ns'
+        'nstack nstack';
+    }
+  }
+</style>
