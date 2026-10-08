@@ -1,12 +1,12 @@
-- 👋 Hi, I’m @westers12
-- 👀 I’m interested in ...
-- 🌱 I’m currently learning C++,C,C#
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me: sem514@hotmail.com
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
+### Hi, I'm Sem Wester
 
-<!---
-westers12/westers12 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+HBO-ICT student at the Amsterdam University of Applied Sciences (HvA), Technical Computing track, focused on robotics and embedded systems. Next to my studies I have worked as a .NET developer at Het Keukenmagazijn since 2023.
+
+I like working on the whole chain, from firmware on a microcontroller to the service and the server it reports to.
+
+- **Embedded & robotics:** C / C++, ESP32 (ESP-IDF and Arduino), (industrial) IoT
+- **Software:** C# / .NET, Java, Power BI
+- **Infrastructure:** Docker, nginx, IIS, Linux
+
+**Portfolio and CV:** [semwester.nl](https://semwester.nl) (source in [`website/`](website/))<br>
+**Email:** sem514@hotmail.com
