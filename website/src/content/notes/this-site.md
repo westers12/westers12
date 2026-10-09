@@ -18,7 +18,7 @@ diagram:
 
 ## Problem
 
-I wanted one place that shows both halves of what I do, embedded and software, in a form that is fast, easy to scan, and that I fully control.
+Iam the problem! I wanted one place that shows both halves of what I do, embedded and software, in a form that is fast, easy to scan, and that I fully control.
 
 ## Approach
 
