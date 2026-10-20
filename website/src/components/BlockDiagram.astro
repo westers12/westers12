@@ -51,7 +51,7 @@ const placedGroups = (groups ?? []).map((g) => {
 
 <style>
   .diagram {
-    --gap: 2.75rem;
+    --gap: 2.25rem;
     --line: 2px;
   }
 
@@ -67,32 +67,18 @@ const placedGroups = (groups ?? []).map((g) => {
 
   li {
     position: relative;
-    border: var(--line) solid var(--ink);
-    background: var(--paper);
-    padding: 0.85rem 0.9rem;
-    min-height: 5.5rem;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1rem 1.1rem;
+    min-height: 6rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 0.2rem;
+    gap: 0.25rem;
   }
 
-  /* Pins: small stubs on the left and right edge of each block */
-  li::before {
-    content: '';
-    position: absolute;
-    left: calc(-1 * var(--line) - 6px);
-    top: 50%;
-    width: 6px;
-    height: 10px;
-    margin-top: -5px;
-    background: var(--ink);
-  }
-  li:first-child::before {
-    display: none;
-  }
-
-  /* Signal line plus arrowhead into the next block */
+  /* Connector into the next tile, ending in a small dot */
   li:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -100,61 +86,87 @@ const placedGroups = (groups ?? []).map((g) => {
     left: 100%;
     width: var(--gap);
     height: var(--line);
-    margin-left: var(--line);
-    background: var(--mask);
+    margin-top: calc(var(--line) / -2);
+    background: linear-gradient(90deg, var(--fill), var(--accent));
+    border-radius: var(--line);
     transform-origin: left center;
+  }
+  li:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px -3.5px 0 0;
+    border-radius: 50%;
+    background: var(--accent);
+    z-index: 1;
   }
 
   .label {
-    font-weight: 750;
-    font-stretch: var(--narrow);
-    font-size: var(--step-1);
-    line-height: 1.15;
+    font-weight: 600;
+    font-size: 1.0625rem;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
   }
   .label.tbd {
     align-self: flex-start;
   }
   .detail {
-    font-size: var(--step--1);
-    color: var(--ink-soft);
+    font-size: 0.8125rem;
+    color: var(--fg-2);
+    letter-spacing: 0;
   }
 
-  /* Group brackets under the blocks */
+  /* Group labels: soft capsules under the tiles they cover */
   .groups {
-    margin-top: 0.6rem;
-    font-size: var(--step--1);
+    margin-top: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--mask);
+    color: var(--fg-2);
+    letter-spacing: 0.01em;
   }
   .groups span {
-    border: 2px solid var(--mask);
-    border-top: 0;
-    height: 1.9rem;
     display: flex;
-    align-items: flex-end;
     justify-content: center;
-    padding-bottom: 0.15rem;
-    transform: translateY(0);
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: var(--fill);
   }
 
-  /* One load moment: the signal travels down the chain */
-  .animate li {
-    animation: power 0.45s ease-out both;
-    animation-delay: calc(var(--i) * 0.32s + 0.15s);
+  /*
+   * One load moment: the signal travels down the chain.
+   * Tiles arrive on a critically damped spring (no overshoot: nothing was flicked).
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate li {
+      animation: arrive var(--spring-dur) var(--spring) both;
+      animation-delay: calc(var(--i) * 0.14s + 0.1s);
+    }
+    .animate li:not(:last-child)::after {
+      animation: trace 0.35s var(--spring) both;
+      animation-delay: calc(var(--i) * 0.14s + 0.3s);
+    }
+    .animate li:not(:first-child)::before {
+      animation: pop 0.3s var(--spring) both;
+      animation-delay: calc(var(--i) * 0.14s + 0.2s);
+    }
   }
-  .animate li:not(:last-child)::after {
-    animation: trace 0.3s ease-in both;
-    animation-delay: calc(var(--i) * 0.32s + 0.4s);
-  }
-  @keyframes power {
+  @keyframes arrive {
     from {
-      border-color: var(--rule);
-      color: var(--rule);
+      opacity: 0;
+      transform: translateX(-0.75rem) scale(0.96);
     }
   }
   @keyframes trace {
     from {
       transform: scaleX(0);
+    }
+  }
+  @keyframes pop {
+    from {
+      transform: scale(0);
     }
   }
 
@@ -167,24 +179,30 @@ const placedGroups = (groups ?? []).map((g) => {
     li {
       min-height: 0;
     }
-    li::before {
-      left: 50%;
-      top: calc(-1 * var(--line) - 6px);
-      width: 10px;
-      height: 6px;
-      margin: 0 0 0 -5px;
-    }
     li:not(:last-child)::after {
       top: 100%;
       left: 50%;
       width: var(--line);
       height: var(--gap);
-      margin: var(--line) 0 0 -1px;
+      margin: 0 0 0 calc(var(--line) / -2);
+      background: linear-gradient(180deg, var(--fill), var(--accent));
       transform-origin: center top;
+    }
+    li:not(:first-child)::before {
+      right: auto;
+      left: 50%;
+      top: 0;
+      margin: -3.5px 0 0 -3.5px;
     }
     @keyframes trace {
       from {
         transform: scaleY(0);
+      }
+    }
+    @keyframes arrive {
+      from {
+        opacity: 0;
+        transform: translateY(-0.75rem) scale(0.96);
       }
     }
     .groups {

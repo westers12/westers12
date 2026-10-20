@@ -1,26 +1,85 @@
+/*
+ * Apple-style foundations: system type with size-specific tracking,
+ * colours that adapt to light and dark, translucent chrome, and
+ * critically damped spring motion that respects reduced-motion.
+ */
+
 :root {
+  color-scheme: light dark;
+
+  /* Colour, light */
+  --bg: #ffffff;
+  --bg-alt: #f5f5f7;
+  --surface: #ffffff;
+  --fg: #1d1d1f;
+  --fg-2: #6e6e73;
+  --fg-3: #86868b;
+  --separator: rgba(60, 60, 67, 0.16);
+  --fill: rgba(120, 120, 128, 0.12);
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --link: #0066cc;
+  --on-accent: #ffffff;
+  --material: rgba(251, 251, 253, 0.72);
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.06);
+  --shadow-lift: 0 4px 10px rgba(0, 0, 0, 0.06), 0 22px 48px rgba(0, 0, 0, 0.1);
+  --tbd-bg: #ffd60a;
+  --tbd-fg: #1d1d1f;
+
+  /* Type: system font first, it ships optical sizing and tracking tables */
+  --font-system: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --t-small: 0.875rem;
+  --t-body: 1.0625rem;
+  --t-lead: clamp(1.1875rem, 1.6vw, 1.3125rem);
+  --t-title: 1.3125rem;
+  --t-headline: clamp(2rem, 5vw, 3.5rem);
+  --t-display: clamp(3rem, 9vw, 6rem);
+
+  /* Layout */
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --page: 68rem;
+  --measure: 62ch;
+  --radius-s: 0.75rem;
+  --radius: 1.25rem;
+  --radius-l: 1.75rem;
+
+  /* Motion: critically damped spring (damping 1.0, response 0.4s) sampled into linear() */
+  --spring: linear(0, 0.078 5%, 0.235 10%, 0.401 15%, 0.549 20%, 0.669 25%, 0.762 30%, 0.831 35%, 0.882 40%,
+      0.918 45%, 0.944 50%, 0.974 60%, 0.988 70%, 0.995 80%, 1);
+  --spring-dur: 600ms;
+
+  /* Legacy datasheet tokens, still used by the printable CV (/cv) */
   --paper: #fbfcfc;
   --ink: #18212b;
   --ink-soft: #4a5561;
-  --mask: #0f6a4b; /* solder-mask green */
+  --mask: #0f6a4b;
   --mask-deep: #0a4c36;
   --shade: #e4ece8;
   --rule: #b9c6c0;
   --tbd: #f5d547;
-
   --font: 'Archivo Variable', 'Arial Narrow', Arial, sans-serif;
   --narrow: 78%;
-
   --step--1: 0.875rem;
-  --step-0: 1.0625rem;
-  --step-1: 1.25rem;
-  --step-2: 1.6rem;
-  --step-3: 2.4rem;
-  --step-4: clamp(3rem, 9vw, 6.25rem);
+}
 
-  --gutter: clamp(1rem, 4vw, 2.5rem);
-  --page: 72rem;
-  --measure: 66ch;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --bg-alt: #101012;
+    --surface: #1c1c1e;
+    --fg: #f5f5f7;
+    --fg-2: #a1a1a6;
+    --fg-3: #86868b;
+    --separator: rgba(84, 84, 88, 0.55);
+    --fill: rgba(120, 120, 128, 0.24);
+    --accent: #0071e3;
+    --accent-hover: #0a84ff;
+    --link: #2997ff;
+    --material: rgba(22, 22, 23, 0.72);
+    --shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+    --shadow-lift: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 22px 48px rgba(0, 0, 0, 0.5);
+  }
 }
 
 *,
@@ -31,26 +90,28 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 4rem;
+  scroll-padding-top: 4.5rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font);
-  font-size: var(--step-0);
-  line-height: 1.55;
-  font-variant-numeric: tabular-nums;
-  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-system);
+  font-size: var(--t-body);
+  line-height: 1.47;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
 }
 
 h1,
 h2,
 h3 {
-  font-stretch: var(--narrow);
-  line-height: 1.1;
   margin: 0;
+  line-height: 1.1;
 }
 
 p {
@@ -59,19 +120,19 @@ p {
 }
 
 a {
-  color: var(--mask);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
+  color: var(--link);
+  text-decoration: none;
 }
 
 a:hover {
-  color: var(--mask-deep);
-  text-decoration-thickness: 2px;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }
 
 :focus-visible {
-  outline: 3px solid var(--mask);
-  outline-offset: 2px;
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 img {
@@ -88,83 +149,131 @@ img {
 /* Placeholder marker: anything still to be filled in */
 mark.tbd,
 .tbd {
-  background: var(--tbd);
-  color: var(--ink);
-  padding: 0.05em 0.35em;
-  border-radius: 2px;
+  background: var(--tbd-bg);
+  color: var(--tbd-fg);
+  padding: 0.1em 0.5em;
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 0.92em;
+  font-size: 0.85em;
+  letter-spacing: 0;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
-/* Numbered datasheet sections */
+/* Sections alternate between the page background and a soft grey */
 .section {
-  padding-block: 3.5rem 1rem;
+  --card: var(--bg-alt);
+  padding-block: clamp(4rem, 9vw, 7rem);
 }
 
-.section-head {
-  display: flex;
-  gap: 0.6em;
-  align-items: baseline;
-  font-size: var(--step-2);
-  font-weight: 750;
-  padding-bottom: 0.5rem;
-  border-bottom: 3px solid var(--ink);
-  margin-bottom: 1.5rem;
+.section.alt {
+  --card: var(--surface);
+  background: var(--bg-alt);
 }
 
-.section-head .num {
-  color: var(--mask);
-  min-width: 1.2em;
-}
-
-.sub-head {
-  font-size: var(--step-1);
-  font-weight: 700;
-  margin: 2rem 0 0.75rem;
-  display: flex;
-  gap: 0.6em;
-}
-
-.sub-head .num {
-  color: var(--mask);
-}
-
-/* Datasheet tables: full grid, shaded header */
-.table-scroll {
-  overflow-x: auto;
-}
-
-table.spec {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--step--1);
-}
-
-table.spec th,
-table.spec td {
-  border: 1px solid var(--rule);
-  padding: 0.55rem 0.75rem;
-  text-align: left;
-  vertical-align: top;
-}
-
-table.spec thead th {
-  background: var(--shade);
-  font-stretch: var(--narrow);
-  font-weight: 700;
-  font-size: var(--step-0);
-}
-
-table.spec td:first-child {
+.eyebrow {
+  font-size: var(--t-body);
   font-weight: 600;
+  color: var(--fg-2);
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
 }
 
-table.spec thead th:first-child {
-  width: 28%;
+/* Large type gets tight leading and negative tracking; small type stays near zero */
+.headline {
+  font-size: var(--t-headline);
+  font-weight: 700;
+  line-height: 1.07;
+  letter-spacing: -0.025em;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+  max-width: 20ch;
+  text-wrap: balance;
 }
 
-table.spec {
-  table-layout: fixed;
+.title {
+  font-size: var(--t-title);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.lead {
+  font-size: var(--t-lead);
+  line-height: 1.4;
+  letter-spacing: -0.016em;
+  color: var(--fg-2);
+}
+
+.small {
+  font-size: var(--t-small);
+  letter-spacing: -0.006em;
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border-radius: var(--radius-l);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+/* Inset grouped list, like Settings: rows with inset hairline separators */
+.group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.group > li {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 2rem;
+  padding: 1rem 1.25rem;
+}
+
+.group > li + li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1.25rem;
+  right: 0;
+  border-top: 1px solid var(--separator);
+}
+
+.group .k {
+  font-weight: 500;
+}
+
+.group .v {
+  color: var(--fg-2);
+  text-align: right;
+}
+
+.group-label {
+  font-size: var(--t-small);
+  font-weight: 600;
+  color: var(--fg-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 2.25rem 0 0.6rem 1.25rem;
+}
+
+.group-label:first-child {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .group > li {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .group .v {
+    text-align: left;
+  }
 }
 
 /* Figures */
@@ -173,42 +282,100 @@ figure {
 }
 
 figcaption {
-  font-size: var(--step--1);
-  color: var(--ink-soft);
-  margin-top: 0.75rem;
+  font-size: var(--t-small);
+  color: var(--fg-2);
+  margin-top: 1rem;
+  max-width: var(--measure);
 }
 
-figcaption b {
-  color: var(--ink);
-}
-
-/* Buttons */
+/*
+ * Buttons. Feedback lands on press (pointer-down) in 100ms;
+ * the release springs back from wherever the press left it.
+ */
 .btn {
-  display: inline-block;
-  font-weight: 650;
-  font-stretch: var(--narrow);
-  font-size: var(--step-0);
-  padding: 0.55rem 1rem;
-  border: 2px solid var(--mask);
-  color: var(--paper);
-  background: var(--mask);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font: inherit;
+  font-size: var(--t-body);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  padding: 0.75rem 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  color: var(--on-accent);
+  background: var(--accent);
   text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    transform var(--spring-dur) var(--spring),
+    background-color 200ms ease;
 }
 
 .btn:hover {
-  background: var(--mask-deep);
-  border-color: var(--mask-deep);
-  color: var(--paper);
+  background: var(--accent-hover);
+  color: var(--on-accent);
+  text-decoration: none;
 }
 
-.btn.ghost {
-  background: transparent;
-  color: var(--mask);
+.btn:active {
+  transform: scale(0.96);
+  transition:
+    transform 100ms ease-out,
+    background-color 200ms ease;
 }
 
-.btn.ghost:hover {
-  background: var(--shade);
-  color: var(--mask-deep);
+.btn.secondary {
+  background: var(--fill);
+  color: var(--fg);
+}
+
+.btn.secondary:hover {
+  background: var(--separator);
+}
+
+/* "Learn more ›" style text link */
+.more::after {
+  content: ' ›';
+}
+
+/* Scroll-linked reveal: tied 1:1 to scroll position, so it's never ahead of or behind the user */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2rem) scale(0.98);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --separator: rgba(0, 0, 0, 0.45);
+    --fg-2: #3a3a3c;
+  }
+  .card,
+  .group {
+    outline: 1px solid var(--separator);
+  }
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root {
+    --separator: rgba(255, 255, 255, 0.5);
+    --fg-2: #d1d1d6;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -219,6 +386,7 @@ figcaption b {
   *::before,
   *::after {
     animation: none !important;
-    transition: none !important;
+    transition-property: opacity, color, background-color !important;
+    transition-duration: 150ms !important;
   }
 }

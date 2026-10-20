@@ -1,23 +1,23 @@
 ---
-import '@fontsource-variable/archivo/standard.css';
 import '../styles/global.css';
 import { person, site } from '../data/profile';
 
 interface Props {
   title: string;
   description?: string;
-  home?: boolean;
 }
 
-const { title, description = person.summary, home = false } = Astro.props;
+const { title, description = person.summary } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
+// Root-relative anchors work from the home page and from every project page.
 const sections = [
-  { href: '#features', label: 'Features' },
-  { href: '#specifications', label: 'Specifications' },
-  { href: '#notes', label: 'Projects' },
-  { href: '#history', label: 'Experience' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/#highlights', label: 'Highlights' },
+  { href: '/#about', label: 'About' },
+  { href: '/#skills', label: 'Skills' },
+  { href: '/#projects', label: 'Projects' },
+  { href: '/#experience', label: 'Experience' },
+  { href: '/#contact', label: 'Contact' },
 ];
 ---
 
@@ -25,12 +25,13 @@ const sections = [
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#0f6a4b" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -39,35 +40,22 @@ const sections = [
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <header class="band">
-      <div class="wrap band-inner">
-        <a class="part" href="/" aria-label={`${person.name}, home`}>{site.partNumber}</a>
-        <span class="doc">Datasheet, revision {site.revision}</span>
-      </div>
-    </header>
 
-    <nav class="topnav" aria-label="Sections">
-      <div class="wrap topnav-inner">
-        {
-          home ? (
-            <ul>
-              {sections.map((s) => (
-                <li>
-                  <a href={s.href}>{s.label}</a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <ul>
+    <header class="nav">
+      <nav class="wrap nav-inner" aria-label="Main">
+        <a class="home" href="/">{person.name}</a>
+        <ul>
+          {
+            sections.map((s) => (
               <li>
-                <a href="/">Back to the datasheet</a>
+                <a href={s.href}>{s.label}</a>
               </li>
-            </ul>
-          )
-        }
-        <a class="cv-link" href="/cv.pdf" download>Download CV</a>
-      </div>
-    </nav>
+            ))
+          }
+        </ul>
+        <a class="btn cv" href="/cv.pdf" download>CV</a>
+      </nav>
+    </header>
 
     <main id="main">
       <slot />
@@ -75,9 +63,10 @@ const sections = [
 
     <footer class="foot">
       <div class="wrap foot-inner">
-        <span>{site.partNumber} datasheet, revision {site.revision}</span>
-        <a href={`mailto:${person.email}?subject=Feedback on ${site.domain}`}>Send feedback on this document</a>
         <span>&copy; {new Date().getFullYear()} {person.name}</span>
+        <span class="sep" aria-hidden="true"></span>
+        <a href={`mailto:${person.email}?subject=Feedback on ${site.domain}`}>Send feedback</a>
+        <span class="updated">Updated {site.revision}</span>
       </div>
     </footer>
   </body>
@@ -91,88 +80,140 @@ const sections = [
   .skip:focus {
     left: 1rem;
     top: 1rem;
-    z-index: 10;
-    background: var(--paper);
+    z-index: 20;
+    background: var(--bg);
     padding: 0.5rem 1rem;
+    border-radius: 999px;
   }
 
-  .band {
-    background: var(--mask);
-    color: var(--paper);
-  }
-  .band-inner {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding-block: 0.6rem;
-  }
-  .part {
-    color: var(--paper);
-    text-decoration: none;
-    font-weight: 800;
-    font-stretch: var(--narrow);
-    font-size: var(--step-1);
-    letter-spacing: 0.02em;
-  }
-  .doc {
-    font-size: var(--step--1);
-    opacity: 0.9;
-  }
-
-  .topnav {
+  /* Translucent chrome: content scrolls underneath, no opaque strip */
+  .nav {
     position: sticky;
     top: 0;
-    z-index: 5;
-    background: var(--paper);
-    border-bottom: 1px solid var(--rule);
+    z-index: 10;
+    background: var(--material);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 1px 0 transparent;
   }
-  .topnav-inner {
+
+  /* Scroll edge effect: the hairline only appears once content is underneath */
+  @supports (animation-timeline: scroll()) {
+    .nav {
+      animation: edge linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 3rem;
+    }
+    @keyframes edge {
+      to {
+        box-shadow: 0 1px 0 var(--separator);
+      }
+    }
+  }
+  @supports not (animation-timeline: scroll()) {
+    .nav {
+      box-shadow: 0 1px 0 var(--separator);
+    }
+  }
+
+  .nav-inner {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    height: 3.25rem;
   }
-  .topnav ul {
-    display: flex;
-    gap: 1.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0.7rem 0;
-    overflow-x: auto;
-    flex: 1;
-    scrollbar-width: none;
-  }
-  .topnav li {
-    white-space: nowrap;
-  }
-  .topnav a {
-    color: var(--ink);
-    text-decoration: none;
+
+  .home {
+    color: var(--fg);
     font-weight: 600;
-    font-stretch: var(--narrow);
-  }
-  .topnav a:hover {
-    color: var(--mask);
-  }
-  .topnav .cv-link {
-    color: var(--mask);
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
     white-space: nowrap;
-    border-left: 1px solid var(--rule);
-    padding-left: 1rem;
+    text-decoration: none;
+  }
+
+  .nav ul {
+    display: flex;
+    gap: 1.75rem;
+    list-style: none;
+    margin: 0 0 0 auto;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    min-width: 0;
+  }
+  .nav ul::-webkit-scrollbar {
+    display: none;
+  }
+  .nav li {
+    white-space: nowrap;
+  }
+  .nav ul a {
+    color: var(--fg);
+    opacity: 0.8;
+    font-size: 0.8125rem;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    transition: opacity 150ms ease;
+  }
+  .nav ul a:hover {
+    opacity: 1;
+  }
+
+  .cv {
+    font-size: 0.8125rem;
+    padding: 0.35rem 0.9rem;
+  }
+
+  @media (max-width: 760px) {
+    .nav-inner {
+      gap: 1rem;
+    }
+    /* Links stay reachable: they scroll sideways and fade at the edges */
+    .nav ul {
+      gap: 1.25rem;
+      padding-inline: 0.75rem;
+      mask-image: linear-gradient(90deg, transparent, #000 0.75rem, #000 calc(100% - 0.75rem), transparent);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .nav {
+      background: var(--bg);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  @media (prefers-contrast: more) {
+    .nav {
+      background: var(--bg);
+      box-shadow: 0 1px 0 var(--separator);
+    }
   }
 
   .foot {
-    margin-top: 4rem;
-    border-top: 3px solid var(--ink);
-    font-size: var(--step--1);
-    color: var(--ink-soft);
+    background: var(--bg-alt);
+    color: var(--fg-2);
+    font-size: 0.75rem;
+    letter-spacing: 0;
   }
   .foot-inner {
     display: flex;
-    justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    padding-block: 1.25rem 2rem;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding-block: 1.5rem 2.5rem;
+    border-top: 1px solid var(--separator);
+  }
+  .foot a {
+    color: var(--fg);
+  }
+  .sep {
+    width: 1px;
+    height: 0.8rem;
+    background: var(--separator);
+  }
+  .updated {
+    margin-left: auto;
   }
 </style>

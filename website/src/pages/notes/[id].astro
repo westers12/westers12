@@ -12,78 +12,101 @@ export async function getStaticPaths() {
 const { note } = Astro.props;
 const { Content } = await render(note);
 const d = note.data;
-const an = `AN-${String(d.number).padStart(2, '0')}`;
+const num = `Project ${String(d.number).padStart(2, '0')}`;
 const isTbd = (s: string) => s.trim().toUpperCase() === 'TBD';
 ---
 
-<Base title={`${an}: ${d.title}, ${person.name}`} description={d.summary}>
-  <article class="wrap note">
-    <header>
-      <p class="an">Application note {an}</p>
+<Base title={`${d.title}, ${person.name}`} description={d.summary}>
+  <article class="note">
+    <header class="wrap note-head">
+      <a class="back" href="/#projects">All projects</a>
+      <p class="eyebrow">{num}</p>
       <h1>{d.title}</h1>
-      <p class="summary">{d.summary}</p>
-      <table class="spec meta">
-        <tbody>
-          <tr><th scope="row">Period</th><td>{isTbd(d.period) ? <mark class="tbd">TBD</mark> : d.period}</td></tr>
-          {d.role && <tr><th scope="row">Role</th><td>{d.role}</td></tr>}
-          <tr>
-            <th scope="row">Stack</th>
-            <td>{d.stack.some(isTbd) ? <mark class="tbd">TBD</mark> : d.stack.join(', ')}</td>
-          </tr>
-          {d.repo && <tr><th scope="row">Source</th><td><a href={d.repo}>{d.repo.replace(/^https?:\/\//, '')}</a></td></tr>}
-        </tbody>
-      </table>
+      <p class="lead">{d.summary}</p>
+      <ul class="group meta">
+        <li><span class="k">Period</span><span class="v">{isTbd(d.period) ? <mark class="tbd">TBD</mark> : d.period}</span></li>
+        {d.role && <li><span class="k">Role</span><span class="v">{d.role}</span></li>}
+        <li>
+          <span class="k">Stack</span>
+          <span class="v">{d.stack.some(isTbd) ? <mark class="tbd">TBD</mark> : d.stack.join(', ')}</span>
+        </li>
+        {
+          d.repo && (
+            <li>
+              <span class="k">Source</span>
+              <span class="v"><a href={d.repo}>{d.repo.replace(/^https?:\/\//, '')}</a></span>
+            </li>
+          )
+        }
+      </ul>
     </header>
 
-    <figure class="fig">
-      <BlockDiagram blocks={d.diagram} label={`System overview of ${d.title}`} />
-      <figcaption><b>Figure 1.</b> System overview.</figcaption>
-    </figure>
+    <div class="wrap">
+      <figure class="fig card">
+        <BlockDiagram blocks={d.diagram} animate label={`System overview of ${d.title}`} />
+        <figcaption>System overview.</figcaption>
+      </figure>
+    </div>
 
-    <div class="body">
-      <Content />
+    <div class="wrap">
+      <div class="body">
+        <Content />
+      </div>
     </div>
   </article>
 </Base>
 
 <style>
   .note {
-    padding-top: 2.5rem;
+    --card: var(--bg-alt);
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 9vw, 6rem);
   }
-  .an {
-    color: var(--mask);
-    font-weight: 700;
-    font-stretch: var(--narrow);
-    font-size: var(--step-1);
-    margin-bottom: 0.25rem;
+  .back {
+    display: inline-block;
+    font-size: var(--t-small);
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+  }
+  .back::before {
+    content: '‹ ';
+  }
+  .note-head .eyebrow {
+    color: var(--accent);
   }
   h1 {
-    font-size: var(--step-3);
-    font-weight: 800;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.03;
+    letter-spacing: -0.03em;
+    max-width: 18ch;
+    text-wrap: balance;
   }
-  .summary {
-    font-size: var(--step-1);
-    margin-top: 0.75rem;
+  .lead {
+    margin-top: 1rem;
+    max-width: 44ch;
   }
   .meta {
-    max-width: 40rem;
-    margin-top: 1.5rem;
-  }
-  .meta th {
-    background: var(--shade);
-    width: 7rem;
-    font-stretch: var(--narrow);
+    max-width: 36rem;
+    margin-top: 2rem;
   }
   .fig {
-    margin: 2.5rem 0;
-    padding: 1.5rem;
-    border: 1px solid var(--rule);
+    margin-block: clamp(2.5rem, 6vw, 4rem);
+  }
+  .body {
+    max-width: 42rem;
   }
   .body :global(h2) {
-    font-size: var(--step-2);
-    font-weight: 750;
-    border-bottom: 3px solid var(--ink);
-    padding-bottom: 0.4rem;
-    margin: 2.5rem 0 1rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.022em;
+    margin: 2.75rem 0 0.85rem;
+  }
+  .body :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .body :global(p) {
+    font-size: 1.1875rem;
+    line-height: 1.55;
+    letter-spacing: -0.014em;
   }
 </style>

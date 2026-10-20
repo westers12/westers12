@@ -2,19 +2,10 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import BlockDiagram from '../components/BlockDiagram.astro';
-import {
-  person,
-  site,
-  features,
-  lookingFor,
-  description,
-  skillGroups,
-  work,
-  education,
-} from '../data/profile';
+import { person, features, lookingFor, description, skillGroups, work, education } from '../data/profile';
 
 const notes = (await getCollection('notes')).sort((a, b) => a.data.number - b.data.number);
-const an = (n: number) => `AN-${String(n).padStart(2, '0')}`;
+const num = (n: number) => String(n).padStart(2, '0');
 
 const chain = [
   { label: 'Sensors & actuators', detail: 'The physical world' },
@@ -31,33 +22,76 @@ const groups = [
 ];
 ---
 
-<Base title={`${person.name}, ${person.role}`} home>
-  <section class="wrap hero" aria-labelledby="name">
-    <div class="title-block">
+<Base title={`${person.name}, ${person.role}`}>
+  <section class="hero" aria-labelledby="name">
+    <div class="wrap">
+      <p class="eyebrow">{person.role}</p>
       <h1 id="name">{person.name}</h1>
-      <p class="role">{person.role}</p>
-    </div>
-
-    <div class="front">
-      <div id="features" class="features">
-        <h2 class="section-head"><span class="num">1</span>Features</h2>
-        <ul>
-          {features.map((f) => <li>{f}</li>)}
-        </ul>
-        <div class="actions">
-          <a class="btn" href="/cv.pdf" download>Download CV (PDF)</a>
-          <a class="btn ghost" href={`mailto:${person.email}`}>Email me</a>
-        </div>
+      <p class="hero-sub">From firmware to the server it reports to.</p>
+      <p class="lead hero-lead">{person.summary}</p>
+      <div class="actions">
+        <a class="btn" href="/cv.pdf" download>Download CV</a>
+        <a class="btn secondary" href={`mailto:${person.email}`}>Email me</a>
       </div>
 
-      <div class="applications">
-        <h2 class="section-head"><span class="num">2</span>Applications</h2>
-        <p class="lede">{person.summary}</p>
-        <p>Suited for:</p>
+      <figure class="chain card">
+        <BlockDiagram
+          blocks={chain}
+          groups={groups}
+          animate
+          label="Block diagram: sensors and actuators, ESP32 firmware, .NET services, Docker, nginx and IIS hosting, people"
+        />
+        <figcaption>I work across the whole chain, from firmware on a microcontroller to the service and the server it runs on.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section alt" id="highlights" aria-labelledby="highlights-h">
+    <div class="wrap">
+      <p class="eyebrow">Highlights</p>
+      <h2 class="headline" id="highlights-h">Work and study, at the same time.</h2>
+      <ul class="bento">
+        {
+          features.map((f) => (
+            <li class="card reveal">
+              <span class="stat">{f.stat}</span>
+              <span class="stat-text">{f.text}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="about" aria-labelledby="about-h">
+    <div class="wrap">
+      <p class="eyebrow">About</p>
+      <h2 class="headline" id="about-h">Software experience, heading down to the hardware.</h2>
+      <div class="about">
+        <div class="about-text">
+          {description.map((p) => <p>{p}</p>)}
+        </div>
+        <figure class="photo reveal">
+          {
+            person.photo ? (
+              <img src={person.photo} alt={`Portrait of ${person.name}`} width="320" height="400" />
+            ) : (
+              <div class="photo-slot">
+                <mark class="tbd">TBD: add a portrait as public/img/sem.jpg and set person.photo</mark>
+              </div>
+            )
+          }
+        </figure>
+      </div>
+
+      <div class="looking card reveal">
+        <h3 class="title">What I'm looking for</h3>
         {
           lookingFor.roles ? (
             <ul>
-              {lookingFor.roles.map((r) => <li>{r}</li>)}
+              {lookingFor.roles.map((r) => (
+                <li>{r}</li>
+              ))}
             </ul>
           ) : (
             <p>
@@ -65,342 +99,424 @@ const groups = [
             </p>
           )
         }
-        <p>
-          Available from:{' '}
-          {lookingFor.availableFrom ?? <mark class="tbd">TBD: date</mark>}
+        <p class="avail">
+          Available from <strong>{lookingFor.availableFrom ?? <mark class="tbd">TBD: date</mark>}</strong>
         </p>
       </div>
     </div>
-
-    <figure class="fig1">
-      <BlockDiagram
-        blocks={chain}
-        groups={groups}
-        animate
-        label="Functional block diagram: sensors and actuators, ESP32 firmware, .NET services, Docker, nginx and IIS hosting, people"
-      />
-      <figcaption>
-        <b>Figure 1.</b> Functional block diagram. I work across the whole chain, from firmware on a microcontroller
-        to the service and the server it runs on.
-      </figcaption>
-    </figure>
   </section>
 
-  <section class="wrap section" aria-labelledby="description">
-    <h2 class="section-head" id="description"><span class="num">3</span>Description</h2>
-    <div class="desc">
-      <div>
-        {description.map((p) => <p>{p}</p>)}
-      </div>
-      <figure class="photo">
+  <section class="section alt" id="skills" aria-labelledby="skills-h">
+    <div class="wrap">
+      <p class="eyebrow">Skills</p>
+      <h2 class="headline" id="skills-h">What I build with, and where I used it.</h2>
+      <div class="skills">
         {
-          person.photo ? (
-            <img src={person.photo} alt={`Portrait of ${person.name}`} width="320" height="400" />
-          ) : (
-            <div class="photo-slot">
-              <mark class="tbd">TBD: add a portrait as public/img/sem.jpg and set person.photo</mark>
+          skillGroups.map((g) => (
+            <div class="reveal">
+              <h3 class="group-label">{g.title}</h3>
+              <ul class="group">
+                {g.skills.map((s) => (
+                  <li>
+                    <span class="k">{s.name}</span>
+                    <span class="v">{s.where ?? <mark class="tbd">TBD</mark>}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          )
+          ))
         }
-        <figcaption><b>Figure 2.</b> {person.name}</figcaption>
-      </figure>
+      </div>
     </div>
   </section>
 
-  <section class="wrap section" aria-labelledby="specifications">
-    <h2 class="section-head" id="specifications"><span class="num">4</span>Specifications</h2>
-    {
-      skillGroups.map((g, i) => (
-        <>
-          <h3 class="sub-head">
-            <span class="num">4.{i + 1}</span>
-            {g.title}
-          </h3>
-          <div class="table-scroll">
-            <table class="spec">
-              <thead>
-                <tr>
-                  <th scope="col">Skill</th>
-                  <th scope="col">Where I used it</th>
-                </tr>
-              </thead>
-              <tbody>
-                {g.skills.map((s) => (
-                  <tr>
-                    <td>{s.name}</td>
-                    <td>{s.where ?? <mark class="tbd">TBD</mark>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ))
-    }
+  <section class="section" id="projects" aria-labelledby="projects-h">
+    <div class="wrap">
+      <p class="eyebrow">Projects</p>
+      <h2 class="headline" id="projects-h">The problem, my part, and the result.</h2>
+      <ul class="projects">
+        {
+          notes.map((n) => (
+            <li class="reveal">
+              <a class="project card" href={`/notes/${n.id}/`}>
+                <span class="p-top">
+                  <span class="p-num">Project {num(n.data.number)}</span>
+                  {n.data.placeholder && <span class="tbd">Draft</span>}
+                </span>
+                <span class="title p-title">{n.data.title}</span>
+                <span class="p-sum">{n.data.summary}</span>
+                <span class="p-stack small">{n.data.stack.join(' · ')}</span>
+                <span class="more p-more">Read more</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </section>
 
-  <section class="wrap section" aria-labelledby="notes">
-    <h2 class="section-head" id="notes"><span class="num">5</span>Application notes</h2>
-    <p>Selected projects, each written up like an application note: the problem, my part in it, and the result.</p>
-    <ul class="notes">
+  <section class="section alt" id="experience" aria-labelledby="experience-h">
+    <div class="wrap">
+      <p class="eyebrow">Experience</p>
+      <h2 class="headline" id="experience-h">Started young. Kept going.</h2>
       {
-        notes.map((n) => (
-          <li>
-            <a href={`/notes/${n.id}/`}>
-              <span class="an">{an(n.data.number)}</span>
-              <span class="nt">{n.data.title}</span>
-              <span class="ns">{n.data.summary}</span>
-              <span class="nstack">{n.data.stack.join(', ')}</span>
-              {n.data.placeholder && <span class="tbd">Draft</span>}
-            </a>
-          </li>
+        [
+          { title: 'Work', rows: work },
+          { title: 'Education', rows: education },
+        ].map((block) => (
+          <div class="reveal">
+            <h3 class="group-label">{block.title}</h3>
+            <ul class="group timeline">
+              {block.rows.map((r) => (
+                <li>
+                  <span class="when small">{r.period}</span>
+                  <span class="what">
+                    <strong>{r.title}</strong>
+                    <span class="org">{r.org}</span>
+                    {r.details !== undefined || block.title === 'Work' ? (
+                      <span class="det">{r.details ?? <mark class="tbd">TBD: what you did here</mark>}</span>
+                    ) : null}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))
       }
-    </ul>
+    </div>
   </section>
 
-  <section class="wrap section" aria-labelledby="history">
-    <h2 class="section-head" id="history"><span class="num">6</span>Revision history</h2>
-    {
-      [
-        { title: 'Work', rows: work },
-        { title: 'Education', rows: education },
-      ].map((block, i) => (
-        <>
-          <h3 class="sub-head">
-            <span class="num">6.{i + 1}</span>
-            {block.title}
-          </h3>
-          <div class="table-scroll">
-            <table class="spec history">
-              <thead>
-                <tr>
-                  <th scope="col">Period</th>
-                  <th scope="col">Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {block.rows.map((r) => (
-                  <tr>
-                    <td>{r.period}</td>
-                    <td>
-                      <strong>{r.title}</strong>, {r.org}
-                      {r.details !== undefined || block.title === 'Work' ? (
-                        <p>{r.details ?? <mark class="tbd">TBD: what you did here</mark>}</p>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ))
-    }
-  </section>
-
-  <section class="wrap section" aria-labelledby="contact">
-    <h2 class="section-head" id="contact"><span class="num">7</span>Ordering information</h2>
-    <div class="table-scroll">
-      <table class="spec contact">
-        <tbody>
-          <tr>
-            <th scope="row">Email</th>
-            <td><a href={`mailto:${person.email}`}>{person.email}</a></td>
-          </tr>
-          <tr>
-            <th scope="row">LinkedIn</th>
-            <td>{person.linkedin ? <a href={person.linkedin}>{person.linkedin.replace(/^https?:\/\//, '')}</a> : <mark class="tbd">TBD</mark>}</td>
-          </tr>
-          <tr>
-            <th scope="row">GitHub</th>
-            <td>{person.github ? <a href={person.github}>{person.github.replace(/^https?:\/\//, '')}</a> : <mark class="tbd">TBD</mark>}</td>
-          </tr>
-          <tr>
-            <th scope="row">Location</th>
-            <td>{person.location}</td>
-          </tr>
-          <tr>
-            <th scope="row">Languages</th>
-            <td>{person.languages.join(', ')}</td>
-          </tr>
-          <tr>
-            <th scope="row">Other</th>
-            <td>{person.extras.join(', ')}</td>
-          </tr>
-        </tbody>
-      </table>
+  <section class="section contact" id="contact" aria-labelledby="contact-h">
+    <div class="wrap">
+      <p class="eyebrow">Contact</p>
+      <h2 class="headline" id="contact-h">Let's talk.</h2>
+      <p class="mail"><a href={`mailto:${person.email}`}>{person.email}</a></p>
+      <ul class="group details reveal">
+        <li>
+          <span class="k">LinkedIn</span>
+          <span class="v">
+            {person.linkedin ? <a href={person.linkedin}>{person.linkedin.replace(/^https?:\/\//, '')}</a> : <mark class="tbd">TBD</mark>}
+          </span>
+        </li>
+        <li>
+          <span class="k">GitHub</span>
+          <span class="v">
+            {person.github ? <a href={person.github}>{person.github.replace(/^https?:\/\//, '')}</a> : <mark class="tbd">TBD</mark>}
+          </span>
+        </li>
+        <li><span class="k">Location</span><span class="v">{person.location}</span></li>
+        <li><span class="k">Languages</span><span class="v">{person.languages.join(', ')}</span></li>
+        <li><span class="k">Other</span><span class="v">{person.extras.join(', ')}</span></li>
+      </ul>
     </div>
   </section>
 </Base>
 
 <style>
+  /* Hero */
   .hero {
-    padding-top: 2.5rem;
+    --card: var(--bg-alt);
+    padding-block: clamp(3.5rem, 9vw, 6.5rem) clamp(3rem, 7vw, 5rem);
+    text-align: center;
   }
-
-  .title-block {
-    border-bottom: 1px solid var(--rule);
-    padding-bottom: 1.5rem;
-    margin-bottom: 2rem;
+  .hero .eyebrow {
+    color: var(--accent);
+    margin-inline: auto;
   }
-
   h1 {
-    font-size: var(--step-4);
-    font-weight: 800;
-    font-stretch: 70%;
-    letter-spacing: -0.01em;
-    line-height: 0.95;
+    font-size: var(--t-display);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.035em;
   }
-
-  .role {
-    font-size: var(--step-2);
-    font-stretch: var(--narrow);
-    font-weight: 500;
-    color: var(--mask);
-    margin: 0.5rem 0 0;
+  .hero-sub {
+    font-size: clamp(1.5rem, 3.6vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.022em;
+    margin: 0.75rem auto 0;
+    max-width: 22ch;
+    text-wrap: balance;
   }
-
-  .front {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5rem;
+  .hero-lead {
+    margin: 1.5rem auto 0;
+    max-width: 44ch;
+    text-wrap: pretty;
   }
-
-  .front ul {
-    margin: 0 0 1.25rem;
-    padding-left: 1.1rem;
-  }
-  .front li {
-    margin-bottom: 0.4rem;
-  }
-  .front li::marker {
-    color: var(--mask);
-  }
-
-  .lede {
-    font-size: var(--step-1);
-    line-height: 1.45;
-  }
-
   .actions {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.75rem;
+    margin-top: 2rem;
   }
 
-  .fig1 {
-    margin-top: 3rem;
-    padding: 1.75rem;
-    border: 1px solid var(--rule);
-    background:
-      radial-gradient(circle, var(--rule) 1px, transparent 1.2px) 0 0 / 16px 16px,
-      var(--paper);
+  .chain {
+    margin-top: clamp(3rem, 7vw, 4.5rem);
+    text-align: left;
   }
-
-  .desc {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 16rem;
-    gap: 2.5rem;
-    align-items: start;
-  }
-  .photo-slot {
-    aspect-ratio: 4 / 5;
-    border: 2px dashed var(--rule);
-    display: grid;
-    place-items: center;
-    padding: 1rem;
+  .chain figcaption {
+    margin-inline: auto;
     text-align: center;
   }
-  .photo img {
-    border: 1px solid var(--rule);
+
+  /* Highlights bento */
+  .bento {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .bento li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 13rem;
+    justify-content: space-between;
+  }
+  /* Three wide tiles keep every row of the 3-column grid full */
+  .bento li:nth-child(1),
+  .bento li:nth-child(4),
+  .bento li:nth-child(5) {
+    grid-column: span 2;
+  }
+  .stat {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    background: linear-gradient(120deg, var(--accent), #8e44ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .stat-text {
+    font-size: var(--t-body);
+    font-weight: 500;
+    line-height: 1.35;
+    max-width: 30ch;
+  }
+
+  /* About */
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  .about-text p {
+    font-size: var(--t-lead);
+    line-height: 1.5;
+    letter-spacing: -0.016em;
+    color: var(--fg-2);
+  }
+  .about-text p:first-child {
+    color: var(--fg);
+  }
+  .photo img,
+  .photo-slot {
+    border-radius: var(--radius-l);
     aspect-ratio: 4 / 5;
     object-fit: cover;
+    width: 100%;
   }
-
-  table.contact {
-    max-width: 40rem;
-  }
-  table.contact th {
-    background: var(--shade);
-    width: 9rem;
-    font-stretch: var(--narrow);
-  }
-
-  .history p {
-    margin: 0.35rem 0 0;
-    color: var(--ink-soft);
-  }
-
-  .notes {
-    list-style: none;
-    margin: 1.5rem 0 0;
-    padding: 0;
-    border-top: 1px solid var(--rule);
-  }
-  .notes a {
+  .photo-slot {
+    background: var(--bg-alt);
     display: grid;
-    grid-template-columns: 5rem minmax(0, 1fr) auto;
-    grid-template-areas:
-      'an nt tag'
-      'an ns tag'
-      'an nstack tag';
-    column-gap: 1.5rem;
-    padding: 1.1rem 0.5rem;
-    border-bottom: 1px solid var(--rule);
-    color: var(--ink);
-    text-decoration: none;
+    place-items: center;
+    padding: 1.5rem;
+    text-align: center;
   }
-  .notes a:hover {
-    background: var(--shade);
+  .looking {
+    margin-top: 2.5rem;
   }
-  .notes a:hover .nt {
-    color: var(--mask);
+  .looking .title {
+    margin-bottom: 1rem;
   }
-  .an {
-    grid-area: an;
-    font-weight: 800;
-    font-stretch: var(--narrow);
-    font-size: var(--step-1);
-    color: var(--mask);
+  .looking ul {
+    margin: 0 0 1rem;
+    padding-left: 1.2rem;
   }
-  .nt {
-    grid-area: nt;
-    font-weight: 700;
-    font-stretch: var(--narrow);
-    font-size: var(--step-1);
+  .looking li {
+    margin-bottom: 0.35rem;
   }
-  .ns {
-    grid-area: ns;
+  .avail {
+    margin: 0;
+    color: var(--fg-2);
   }
-  .nstack {
-    grid-area: nstack;
-    font-size: var(--step--1);
-    color: var(--ink-soft);
-  }
-  .notes .tbd {
-    grid-area: tag;
-    align-self: start;
+  .avail strong {
+    color: var(--fg);
+    font-weight: 600;
   }
 
-  @media (max-width: 760px) {
-    .front,
-    .desc {
+  /* Skills */
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    gap: 2.25rem 1.5rem;
+    align-items: start;
+  }
+  .skills .group-label {
+    margin-top: 0;
+  }
+  .skills .group > li {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .skills .group .v {
+    text-align: left;
+    font-size: var(--t-small);
+  }
+
+  /* Projects */
+  .projects {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .projects li {
+    display: flex;
+  }
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    color: var(--fg);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform var(--spring-dur) var(--spring),
+      box-shadow 300ms ease;
+  }
+  .project:hover {
+    text-decoration: none;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+  }
+  /* Press feedback is instant; the release springs back from the pressed state */
+  .project:active {
+    transform: scale(0.98);
+    transition:
+      transform 100ms ease-out,
+      box-shadow 300ms ease;
+  }
+  .p-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .p-num {
+    font-size: var(--t-small);
+    font-weight: 600;
+    color: var(--fg-2);
+  }
+  .p-title {
+    font-size: clamp(1.3125rem, 2.4vw, 1.75rem);
+    letter-spacing: -0.022em;
+  }
+  .p-sum {
+    color: var(--fg-2);
+  }
+  .p-stack {
+    color: var(--fg-3);
+    margin-top: auto;
+    padding-top: 0.75rem;
+  }
+  .p-more {
+    color: var(--link);
+  }
+
+  /* Experience */
+  .timeline > li {
+    justify-content: flex-start;
+  }
+  .when {
+    flex: 0 0 11rem;
+    color: var(--fg-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .what {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .what strong {
+    font-weight: 600;
+  }
+  .org {
+    color: var(--fg-2);
+  }
+  .det {
+    margin-top: 0.4rem;
+    font-size: var(--t-small);
+    color: var(--fg-2);
+    max-width: var(--measure);
+  }
+
+  /* Contact */
+  .contact {
+    text-align: center;
+  }
+  .contact .headline {
+    margin-inline: auto;
+    margin-bottom: 1rem;
+  }
+  .mail {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    max-width: none;
+    margin-bottom: 2.5rem;
+    overflow-wrap: anywhere;
+  }
+  .details {
+    max-width: 36rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  @media (max-width: 860px) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .bento li:nth-child(n) {
+      grid-column: auto;
+    }
+    .bento li:nth-child(1),
+    .bento li:nth-child(6) {
+      grid-column: span 2;
+    }
+    .projects {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .bento {
+      grid-template-columns: 1fr;
+    }
+    .bento li:nth-child(n) {
+      grid-column: auto;
+      min-height: 0;
+    }
+    .about {
       grid-template-columns: 1fr;
     }
     .photo {
       max-width: 16rem;
     }
-    .fig1 {
-      padding: 1rem;
+    .timeline > li {
+      flex-direction: column;
     }
-    .notes a {
-      grid-template-columns: 1fr auto;
-      grid-template-areas:
-        'an tag'
-        'nt nt'
-        'ns ns'
-        'nstack nstack';
+    .when {
+      flex-basis: auto;
     }
   }
 </style>

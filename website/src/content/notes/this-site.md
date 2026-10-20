@@ -22,7 +22,7 @@ Iam the problem! I wanted one place that shows both halves of what I do, embedde
 
 ## Approach
 
-The site is styled as a component datasheet. All content lives in one TypeScript file and a Markdown file per project, so the website and the printable CV come from the same source. There is no client-side framework: the pages are plain HTML and CSS.
+The site follows Apple's design guidelines: system type, translucent navigation, inset grouped lists and spring motion that respects reduced-motion settings. All content lives in one TypeScript file and a Markdown file per project, so the website and the printable CV come from the same source. There is no client-side framework: the pages are plain HTML and CSS.
 
 It deploys to Cloudflare Pages on every push. The same build also runs in a small multi-stage Docker image with nginx, so I can move it to my own server at any time.
 

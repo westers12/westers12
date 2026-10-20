@@ -3,9 +3,26 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="Page not found, Sem Wester">
-  <section class="wrap section">
-    <h1 class="section-head"><span class="num">404</span>Page not found</h1>
-    <p>This address doesn't exist. It may have moved, or the link has a typo.</p>
-    <p><a class="btn" href="/">Go to the datasheet</a></p>
+  <section class="section lost">
+    <div class="wrap">
+      <p class="eyebrow">404</p>
+      <h1 class="headline">This page can't be found.</h1>
+      <p class="lead">It may have moved, or the link has a typo.</p>
+      <p><a class="btn" href="/">Go to the home page</a></p>
+    </div>
   </section>
 </Base>
+
+<style>
+  .lost {
+    text-align: center;
+    min-height: 60vh;
+  }
+  .lost .headline,
+  .lost p {
+    margin-inline: auto;
+  }
+  .lost .lead {
+    margin-bottom: 2rem;
+  }
+</style>

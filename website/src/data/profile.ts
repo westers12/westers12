@@ -22,17 +22,17 @@ export const person = {
   extras: ['Driving licence (B)'],
 };
 
-// Section 1, Features: short, factual highlights.
-export const features = [
-  'Three years as a .NET developer at Het Keukenmagazijn, next to a full-time degree',
-  'Gap year spent working full-time (40 hours a week) as a .NET developer',
-  'First-year diploma (propedeuse) completed in one year',
-  'Internship at Rolan Robotics (2025)',
-  'Minor at Queensland University of Technology, Brisbane (2025)',
-  'Used to a high workload: 24 hours of work a week alongside full-time study',
+// Highlights: short, factual. `stat` is the large figure on the site's highlight cards.
+export const features: { stat: string; text: string }[] = [
+  { stat: '3 years', text: 'Three years as a .NET developer at Het Keukenmagazijn, next to a full-time degree' },
+  { stat: '40 h', text: 'Gap year spent working full-time (40 hours a week) as a .NET developer' },
+  { stat: '1 year', text: 'First-year diploma (propedeuse) completed in one year' },
+  { stat: '2025', text: 'Internship at Rolan Robotics (2025)' },
+  { stat: 'Brisbane', text: 'Minor at Queensland University of Technology, Brisbane (2025)' },
+  { stat: '24 h', text: 'Used to a high workload: 24 hours of work a week alongside full-time study' },
 ];
 
-// Section 2, Applications: what kind of role I'm looking for.
+// What kind of role I'm looking for.
 export const lookingFor = {
   roles: undefined as string[] | undefined, // e.g. ['Graduation internship in embedded or robotics', 'Part-time .NET role']
   availableFrom: undefined as string | undefined, // e.g. 'February 2027'

@@ -71,7 +71,7 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
 
         <aside class="side">
           <h2>Highlights</h2>
-          <ul>{features.map((f) => <li>{f}</li>)}</ul>
+          <ul>{features.map((f) => <li>{f.text}</li>)}</ul>
 
           {
             skillGroups.map((g) => (
@@ -98,10 +98,29 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
     margin: 0;
   }
 
-  body {
+  /* The CV keeps its own datasheet look, independent of the site's theme */
+  :global(html) {
+    color-scheme: light;
+  }
+
+  /* html + body outranks the site's global body rule, which loads after this */
+  :global(html body) {
     background: var(--shade);
+    color: var(--ink);
+    font-family: var(--font);
     font-size: 10pt;
     line-height: 1.4;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a {
+    color: var(--mask);
+  }
+
+  h1,
+  h2 {
+    font-stretch: var(--narrow);
   }
 
   .screen-note {
@@ -236,7 +255,7 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
   }
 
   @media print {
-    body {
+    :global(html body) {
       background: none;
     }
     .screen-note {
