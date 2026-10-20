@@ -1,6 +1,5 @@
 ---
 // Printable CV. `npm run cv` turns this page into public/cv.pdf.
-import '@fontsource-variable/archivo/standard.css';
 import '../styles/global.css';
 import { person, site, features, skillGroups, work, education, description } from '../data/profile';
 
@@ -21,8 +20,8 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
       Printable CV. <a href="/cv.pdf" download>Download the PDF</a> or <a href="/">go back to the site</a>.
     </p>
     <article class="sheet">
-      <header class="band">
-        <span>{site.partNumber}</span>
+      <header class="top">
+        <span>Curriculum Vitae</span>
         <span>{site.domain}</span>
       </header>
 
@@ -98,78 +97,76 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
     margin: 0;
   }
 
-  /* The CV keeps its own datasheet look, independent of the site's theme */
-  :global(html) {
+  /* Paper is always light: pin the light palette even when the OS is in dark mode */
+  :global(html:root) {
     color-scheme: light;
+    --bg-alt: #f5f5f7;
+    --surface: #ffffff;
+    --fg: #1d1d1f;
+    --fg-2: #6e6e73;
+    --fg-3: #86868b;
+    --separator: rgba(60, 60, 67, 0.16);
+    --link: #0066cc;
   }
 
   /* html + body outranks the site's global body rule, which loads after this */
   :global(html body) {
-    background: var(--shade);
-    color: var(--ink);
-    font-family: var(--font);
+    background: var(--bg-alt);
     font-size: 10pt;
-    line-height: 1.4;
-    letter-spacing: 0;
-    font-variant-numeric: tabular-nums;
-  }
-
-  a {
-    color: var(--mask);
-  }
-
-  h1,
-  h2 {
-    font-stretch: var(--narrow);
+    line-height: 1.45;
+    letter-spacing: -0.003em;
   }
 
   .screen-note {
     max-width: 210mm;
-    margin: 1rem auto;
+    margin: 1.25rem auto;
     padding: 0 1rem;
-    font-size: var(--step--1);
+    font-size: var(--t-small);
+    color: var(--fg-2);
   }
 
   .sheet {
     width: 210mm;
     min-height: 297mm;
-    margin: 0 auto 2rem;
-    background: var(--paper);
-    box-shadow: 0 1px 3px rgba(24, 33, 43, 0.2);
+    margin: 0 auto 2.5rem;
+    padding: 12mm 15mm 14mm;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
   }
 
-  .band {
+  .top {
     display: flex;
     justify-content: space-between;
-    background: var(--mask);
-    color: var(--paper);
-    padding: 3mm 14mm;
-    font-weight: 700;
-    font-stretch: var(--narrow);
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   .head {
     display: flex;
     justify-content: space-between;
     gap: 8mm;
-    padding: 9mm 14mm 0;
+    margin-top: 9mm;
     align-items: end;
   }
 
+  /* Large type: tight leading, negative tracking */
   h1 {
-    font-size: 30pt;
-    font-weight: 800;
-    font-stretch: 70%;
+    font-size: 32pt;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
   }
 
   .role {
-    color: var(--mask);
+    color: var(--fg-2);
     font-size: 13pt;
-    font-stretch: var(--narrow);
-    font-weight: 600;
-    margin: 1mm 0 0;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    margin: 1.5mm 0 0;
   }
 
   .contact {
@@ -178,28 +175,32 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
     padding: 0;
     text-align: right;
     font-size: 9pt;
+    color: var(--fg-2);
   }
 
   .summary {
-    margin: 5mm 14mm 0;
-    padding-bottom: 5mm;
-    border-bottom: 2px solid var(--ink);
+    margin: 6mm 0 0;
+    padding-bottom: 6mm;
+    border-bottom: 1px solid var(--separator);
     max-width: none;
     font-size: 10.5pt;
+    letter-spacing: -0.008em;
   }
 
   .cols {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 62mm;
-    gap: 9mm;
-    padding: 2mm 14mm 12mm;
+    grid-template-columns: minmax(0, 1fr) 60mm;
+    gap: 10mm;
+    padding-top: 1mm;
   }
 
   h2 {
-    font-size: 12pt;
-    font-weight: 750;
-    color: var(--mask);
-    margin: 5mm 0 2mm;
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: var(--fg-2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 6mm 0 2.5mm;
   }
 
   .entry {
@@ -209,12 +210,16 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
   .entry p {
     margin: 0;
   }
+  .entry strong {
+    font-weight: 600;
+  }
   .when {
     font-size: 8.5pt;
-    color: var(--ink-soft);
+    color: var(--fg-3);
+    font-variant-numeric: tabular-nums;
   }
   .det {
-    color: var(--ink-soft);
+    color: var(--fg-2);
     font-size: 9.5pt;
   }
 
@@ -235,22 +240,16 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
     .sheet {
       width: auto;
       min-height: 0;
-      margin: 0 0.5rem 2rem;
+      margin: 0 0.75rem 2rem;
+      padding: 1.5rem 1.25rem;
     }
     .head,
     .cols {
       display: block;
-      padding-inline: 1rem;
     }
     .contact {
       text-align: left;
       margin-top: 1rem;
-    }
-    .band {
-      padding-inline: 1rem;
-    }
-    .summary {
-      margin-inline: 1rem;
     }
   }
 
@@ -263,10 +262,11 @@ const links = [person.linkedin, person.github].filter(Boolean) as string[];
     }
     .sheet {
       margin: 0;
+      border-radius: 0;
       box-shadow: none;
     }
     a {
-      color: var(--ink);
+      color: var(--fg);
       text-decoration: none;
     }
   }

@@ -3,7 +3,6 @@
 // so it's easy to spot what still needs real content.
 
 export const site = {
-  partNumber: 'SW-2026',
   revision: 'October 2026',
   domain: 'semwester.nl',
 };

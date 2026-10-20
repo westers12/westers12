@@ -48,19 +48,6 @@
   --spring: linear(0, 0.078 5%, 0.235 10%, 0.401 15%, 0.549 20%, 0.669 25%, 0.762 30%, 0.831 35%, 0.882 40%,
       0.918 45%, 0.944 50%, 0.974 60%, 0.988 70%, 0.995 80%, 1);
   --spring-dur: 600ms;
-
-  /* Legacy datasheet tokens, still used by the printable CV (/cv) */
-  --paper: #fbfcfc;
-  --ink: #18212b;
-  --ink-soft: #4a5561;
-  --mask: #0f6a4b;
-  --mask-deep: #0a4c36;
-  --shade: #e4ece8;
-  --rule: #b9c6c0;
-  --tbd: #f5d547;
-  --font: 'Archivo Variable', 'Arial Narrow', Arial, sans-serif;
-  --narrow: 78%;
-  --step--1: 0.875rem;
 }
 
 @media (prefers-color-scheme: dark) {
